@@ -58,28 +58,43 @@ int isOutOfStock() {
   return (positions[0] == 0 && positions[1] == 0);
 }
 
-int openDoor() {
-  display.clear();
-  display.setFont(ArialMT_Plain_24);
-  display.drawString(0, 20, "Thanks");
-  display.display();
+int openDoor(int pin) {
+  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(door_pins[pin], UNLOCK);
+
+  Serial.println("Open:" + String(pin));
+  delay(DOOR_TIME);
+//  drawProgressBar();
+  
+  digitalWrite(door_pins[pin], LOCK);
+  digitalWrite(LED_BUILTIN, LOW);
+}
+
+int choosePosition() {
 
   // Check positions & open right door
-  if (positions[0]) {
-    positions[0] = 0;
-    digitalWrite(DOOR_PIN, HIGH);
-    drawProgressBar();
-    digitalWrite(DOOR_PIN, LOW);
-  } else if (positions[1]) {
-    positions[1] = 0;
-    digitalWrite(DOOR_PIN, HIGH);
-    drawProgressBar();
-    digitalWrite(DOOR_PIN, LOW);
+  for(int i = 0; i < door_count; i++) {
+    
+    if (positions[i]) {
+      positions[i] = 0;
+      openDoor(i);
+
+      display.clear();
+      display.setFont(ArialMT_Plain_24);
+      display.drawString(0, 20, "Thanks");
+      display.display();
+      delay(5*SECOND);
+
+      break;
+    }
   }
 
-  if (isOutOfStock()) {
+  // Check last position
+  if (!positions[door_count - 1]) {
+    Serial.println("Out of stock");
     drawOutOfStock();
   } else {
     drawImage();
   }
+  Serial.println("sizeof: " + String(door_count));
 }
