@@ -55,7 +55,7 @@ void drawImage() {
 }
 
 int isOutOfStock() {
-  return (positions[0] == 0 && positions[1] == 0);
+  return (positions[door_count - 1] == 0);
 }
 
 int openDoor(int pin) {
@@ -64,7 +64,6 @@ int openDoor(int pin) {
 
   Serial.println("Open:" + String(pin));
   delay(DOOR_TIME);
-//  drawProgressBar();
   
   digitalWrite(door_pins[pin], LOCK);
   digitalWrite(LED_BUILTIN, LOW);
@@ -76,21 +75,21 @@ int choosePosition() {
   for(int i = 0; i < door_count; i++) {
     
     if (positions[i]) {
-      positions[i] = 0;
-      openDoor(i);
+      positions[i] = 0; // Empty position
+      openDoor(i);      // Open door
 
       display.clear();
       display.setFont(ArialMT_Plain_24);
       display.drawString(0, 20, "Thanks");
       display.display();
-      delay(5*SECOND);
+      delay(5 * SECOND);
 
       break;
     }
   }
 
   // Check last position
-  if (!positions[door_count - 1]) {
+  if (isOutOfStock()) {
     Serial.println("Out of stock");
     drawOutOfStock();
   } else {

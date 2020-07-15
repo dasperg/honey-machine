@@ -1,11 +1,10 @@
+// Board: "DOIT ESP32 DEVKIT V1"
+
 // Include the correct display library
 
 // For a connection via I2C using the Arduino Wire include:
-//#include <Wire.h>               // Only needed for Arduino 1.6.5 and earlier
 #include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
 #include "WiFi.h"
-//#include <esp_wifi.h>
-//#include "esp_deep_sleep.h"
 
 #define SECOND 1000
 
@@ -14,24 +13,24 @@ SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL  -  SDA and SCL usua
 
 // Positions are full
 int positions[] = {1, 1};
+int door_pins[] = {25, 26};
+int door_count = sizeof(door_pins)/sizeof(int);
+
 int sum = 0;
 int price = 100;
+#define COIN_AMOUNT 2
 
 // GPIO coin input
 #define COIN_PIN 18
 
-int door_pins[] = {25, 26};
-int door_count = sizeof(door_pins)/sizeof(int);
-
 #define LOCK HIGH
 #define UNLOCK LOW 
 
-#define COIN_AMOUNT 2
 //#define PRICE 200
 #define DOOR_TIME 0.1 * SECOND
 
 // How many minutes the ESP should sleep
-#define DEEP_SLEEP_TIME 1
+//#define DEEP_SLEEP_TIME 1
 
 // Optionally include custom images
 #include "honey.h"
@@ -61,6 +60,10 @@ void setup() {
   display.flipScreenVertically();
   display.setFont(ArialMT_Plain_10);
 
+  // Wait for capacitor, 
+  // opening doors comsume lot of current
+  delay(5 * SECOND);
+
   // IO
   pinMode(COIN_PIN, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -80,7 +83,6 @@ void setup() {
 
 void loop() {
   int coin = digitalRead(COIN_PIN);
-//  Serial.println(coin);
   
   if (coin && !isOutOfStock()) {
     sum += COIN_AMOUNT;
@@ -91,6 +93,8 @@ void loop() {
       choosePosition();
       sum = 0;
     } else {
+
+      // Display price
       display.clear();
       display.setFont(ArialMT_Plain_24);
       display.drawString(0, 20, String(sum) + "/" + String(price) + "Eur");
