@@ -266,7 +266,9 @@ UsedLibraryUrn="urn:adsk.eagle:library:196"
 UsedLibraryUrn="urn:adsk.eagle:library:197"
 UsedLibraryUrn="urn:adsk.eagle:library:198"
 UsedLibraryUrn="urn:adsk.eagle:library:199"
+UsedLibrary="/home/dasper/EAGLE/libraries/diy-modules.lbr"
 UsedLibrary="/home/dasper/Apps/eagle-9.6.1/lib/esp32.lbr"
+UsedLibrary="/home/dasper/EAGLE/libraries/DOIT_ESP32_DEVKIT_V1.lbr"
 
 [Win_1]
 Type="Control Panel"
