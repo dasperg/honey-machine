@@ -6,34 +6,22 @@
 #include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
 #include "WiFi.h"
 
-#define SECOND 1000
-
-// Initialize the OLED display using Arduino Wire:
-SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL  -  SDA and SCL usually populate automatically based on your board's pins_arduino.h
-
-// Positions are full
+// Main configuration
+#include "config.h"
+int config();
 int positions[] = {1, 1};
 int door_pins[] = {25, 26};
 int door_count = sizeof(door_pins)/sizeof(int);
 
-int sum = 0;
-int price = 100;
-#define COIN_AMOUNT 2
-
-// GPIO coin input
-#define COIN_PIN 18
-
-#define LOCK HIGH
-#define UNLOCK LOW 
-
-//#define PRICE 200
-#define DOOR_TIME 0.1 * SECOND
-
-// How many minutes the ESP should sleep
-//#define DEEP_SLEEP_TIME 1
+int balance = 0;
+int price = 8;
 
 // Optionally include custom images
 #include "honey.h"
+
+// Initialize the OLED display using Arduino Wire:
+// ADDRESS, SDA, SCL  -  SDA and SCL usually populate automatically based on your board's pins_arduino.h
+SSD1306Wire display(DISPLAY_ADDR, SDA, SCL);
 
 // Main functions
 #include "functions.h"
@@ -54,6 +42,8 @@ void setup() {
   // Deep sleep
   // Configure the timer to wake us up!
 //  esp_sleep_enable_timer_wakeup(DEEP_SLEEP_TIME * 60L * 1000000L);
+
+  pinMode(COIN_PIN, INPUT_PULLUP);
 
   // Initialising the UI will init the display too.
   display.init();
@@ -83,21 +73,22 @@ void setup() {
 
 void loop() {
   int coin = digitalRead(COIN_PIN);
+  readVoltage();
   
   if (coin && !isOutOfStock()) {
-    sum += COIN_AMOUNT;
+    balance += COIN_AMOUNT;
 
-    Serial.println(sum);
+    Serial.println(balance);
     
-    if (sum >= price) {
+    if (balance >= price) {
       choosePosition();
-      sum = 0;
+      balance = 0;
     } else {
 
       // Display price
       display.clear();
       display.setFont(ArialMT_Plain_24);
-      display.drawString(0, 20, String(sum) + "/" + String(price) + "Eur");
+      display.drawString(0, 20, String(balance) + "/" + String(price) + "Eur");
       display.display();
     }
   }

@@ -97,3 +97,25 @@ int choosePosition() {
   }
   Serial.println("sizeof: " + String(door_count));
 }
+
+void readVoltage(int pinNumber = VOLTAGE_PIN)
+{
+  static const unsigned long REFRESH_INTERVAL = 5 * SECOND; // ms
+  static unsigned long lastRefreshTime = 0;
+  static const float refVoltage = 3.3;
+  static const int resolution = 4096;
+
+  if(millis() - lastRefreshTime >= REFRESH_INTERVAL)
+	{
+		lastRefreshTime += REFRESH_INTERVAL;
+    
+    // Voltage measurement
+    float voltageRaw = analogRead(pinNumber);
+    Serial.println(voltageRaw);
+    voltageRaw = voltageRaw * (refVoltage / resolution);
+    Serial.println("Vout: " + String(voltageRaw));
+  
+    float voltage = voltageRaw * (R1 + R2) / R2;
+    Serial.println("Vin: " + String(voltage));
+	}
+}
